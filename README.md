@@ -59,32 +59,30 @@ Design Philosophy
 
 **📁 Project Structure**
 .
-├── frontend/
-│   ├── app/
-│   │   ├── page.tsx              # Landing page
-│   │   ├── login/                # Authentication
-│   │   ├── signup/
-│   │   ├── forgot-password/
-│   │   ├── dashboard/            # Main application
-│   │   ├── settings/
-│   │   ├── features/
-│   │   │   ├── knowledge-assistant/
-│   │   │   ├── study-guide-generator/
-│   │   │   ├── assessment-generator/
-│   │   │   ├── slide-deck-generator/
-│   │   │   └── content-priority-tagger/
-│   │   ├── layout.tsx
-│   │   └── globals.css
-│   ├── components/
-│   │   └── AppLayout.tsx
-│   └── config files
-│
-├── backend/
-│   ├── .env.example
-│   ├── launch.sh
-│   └── FastAPI source (WIP)
-│
-└── README.md
+    frontend/
+        app/
+            page.tsx              # Landing page
+            login/                # Authentication
+            signup/
+            forgot-password/
+            dashboard/            # Main application
+            settings/
+            features/
+                knowledge-assistant/
+                study-guide-generator/
+                assessment-generator/
+                slide-deck-generator/
+                content-priority-tagger/
+            layout.tsx
+            globals.css
+        components/
+            AppLayout.tsx
+        config files
+    backend/
+        env.example
+        launch.sh
+        FastAPI source (WIP)
+    README.md
 
 
 **🚀 Getting Started**
