@@ -1,0 +1,2334 @@
+openapi: 3.1.0
+info:
+  title: EduAssist API
+  description: AI-Powered Teaching Assistant Platform - Knowledge Assistant Feature
+  version: 1.0.0
+paths:
+  /knowledge-assistant/knowledge/documents:
+    post:
+      tags:
+        - Knowledge Assistant
+        - Knowledge Assistant
+      summary: Upload Document
+      description: Upload and process a document for RAG knowledge base
+      operationId: upload_document_knowledge_assistant_knowledge_documents_post
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+            title: Title
+        - name: course_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            title: Course Id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_document_knowledge_assistant_knowledge_documents_post'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Knowledge Assistant
+        - Knowledge Assistant
+      summary: List Documents
+      description: List all documents
+      operationId: list_documents_knowledge_assistant_knowledge_documents_get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: course_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            title: Course Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentResponse'
+                title: Response List Documents Knowledge Assistant Knowledge Documents Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /knowledge-assistant/knowledge/conversations:
+    post:
+      tags:
+        - Knowledge Assistant
+        - Knowledge Assistant
+      summary: Create Conversation
+      description: Create a new conversation
+      operationId: create_conversation_knowledge_assistant_knowledge_conversations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /knowledge-assistant/knowledge/conversations/{conversation_id}:
+    get:
+      tags:
+        - Knowledge Assistant
+        - Knowledge Assistant
+      summary: Get Conversation
+      description: Get conversation with messages
+      operationId: get_conversation_knowledge_assistant_knowledge_conversations__conversation_id__get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Conversation Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /knowledge-assistant/knowledge/chat:
+    post:
+      tags:
+        - Knowledge Assistant
+        - Knowledge Assistant
+      summary: Chat Query
+      description: |-
+        Process a chat query using RAG
+
+        Steps:
+        1. Query knowledge base for relevant context
+        2. Generate response with Gemini
+        3. Save message to conversation
+        4. Return response with confidence score
+      operationId: chat_query_knowledge_assistant_knowledge_chat_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatQueryRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatQueryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /study-guides/study-guides/video-info:
+    get:
+      tags:
+        - Study Guides
+        - Study Guide Generator
+      summary: Get Video Info
+      description: |-
+        Get YouTube video information
+
+        Check if video has captions and get metadata before creating study guide
+      operationId: get_video_info_study_guides_study_guides_video_info_get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Url
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /study-guides/study-guides/:
+    post:
+      tags:
+        - Study Guides
+        - Study Guide Generator
+      summary: Create Study Guide
+      description: |-
+        Create a study guide from YouTube video
+
+        Steps:
+        1. Validate YouTube URL and get video ID
+        2. Get video metadata
+        3. Create study guide record (PROCESSING status)
+        4. Generate content in background (async)
+        5. Return study guide ID immediately
+
+        The client should poll /study-guides/{id} to check status
+      operationId: create_study_guide_study_guides_study_guides__post
+      security:
+        - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudyGuideCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyGuideResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Study Guides
+        - Study Guide Generator
+      summary: List Study Guides
+      description: List study guides
+      operationId: list_study_guides_study_guides_study_guides__get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: course_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            title: Course Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyGuideListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /study-guides/study-guides/{guide_id}:
+    get:
+      tags:
+        - Study Guides
+        - Study Guide Generator
+      summary: Get Study Guide
+      description: Get study guide by ID
+      operationId: get_study_guide_study_guides_study_guides__guide_id__get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: guide_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Guide Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyGuideResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - Study Guides
+        - Study Guide Generator
+      summary: Delete Study Guide
+      description: Delete study guide
+      operationId: delete_study_guide_study_guides_study_guides__guide_id__delete
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: guide_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Guide Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /study-guides/study-guides/transcript/{video_id}:
+    get:
+      tags:
+        - Study Guides
+        - Study Guide Generator
+      summary: Get Video Transcript
+      description: |-
+        Get video transcript for preview
+
+        Used by frontend to show transcript before creating study guide
+      operationId: get_video_transcript_study_guides_study_guides_transcript__video_id__get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: video_id
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Video Id
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Start
+        - name: end
+          in: query
+          required: false
+          schema:
+            type: integer
+            title: End
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /assessments/assessments/:
+    post:
+      tags:
+        - Assessments
+        - Assessment Generator
+      summary: Create Assessment
+      description: |-
+        Create AI-generated assessment
+
+        Steps:
+        1. Create assessment record (GENERATING status)
+        2. Generate questions in background
+        3. Return assessment ID immediately
+
+        Client should poll /assessments/{id} to check status
+      operationId: create_assessment_assessments_assessments__post
+      security:
+        - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssessmentCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Assessments
+        - Assessment Generator
+      summary: List Assessments
+      description: List assessments
+      operationId: list_assessments_assessments_assessments__get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: course_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            title: Course Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /assessments/assessments/{assessment_id}:
+    get:
+      tags:
+        - Assessments
+        - Assessment Generator
+      summary: Get Assessment
+      description: Get assessment by ID (with answers - for instructors)
+      operationId: get_assessment_assessments_assessments__assessment_id__get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Assessment Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - Assessments
+        - Assessment Generator
+      summary: Delete Assessment
+      description: Delete assessment
+      operationId: delete_assessment_assessments_assessments__assessment_id__delete
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Assessment Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /assessments/assessments/{assessment_id}/preview:
+    get:
+      tags:
+        - Assessments
+        - Assessment Generator
+      summary: Preview Assessment
+      description: |-
+        Get assessment preview (no answers - for students)
+
+        Used by students to take the assessment
+      operationId: preview_assessment_assessments_assessments__assessment_id__preview_get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Assessment Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentPreview'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /assessments/assessments/{assessment_id}/attempts:
+    post:
+      tags:
+        - Assessments
+        - Assessment Generator
+      summary: Start Attempt
+      description: Start an assessment attempt
+      operationId: start_attempt_assessments_assessments__assessment_id__attempts_post
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Assessment Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentAttemptResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /assessments/assessments/attempts/{attempt_id}/submit:
+    post:
+      tags:
+        - Assessments
+        - Assessment Generator
+      summary: Submit Attempt
+      description: Submit assessment answers
+      operationId: submit_attempt_assessments_assessments_attempts__attempt_id__submit_post
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: attempt_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Attempt Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssessmentSubmit'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentAttemptResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /assessments/assessments/my-attempts:
+    get:
+      tags:
+        - Assessments
+        - Assessment Generator
+      summary: Get My Attempts
+      description: Get current user's assessment attempts
+      operationId: get_my_attempts_assessments_assessments_my_attempts_get
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: assessment_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            title: Assessment Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssessmentAttemptResponse'
+                title: Response Get My Attempts Assessments Assessments My Attempts Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /slide-decks/slide-decks/:
+    post:
+      tags:
+        - Slide Decks
+        - Slide Decks
+      summary: Start Slide Deck
+      description: Generate slide deck from uploaded docs. Returns deck_id (status PENDING/COMPLETE)
+      operationId: start_slide_deck_slide_decks_slide_decks__post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SlideDeckCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Start Slide Deck Slide Decks Slide Decks  Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Slide Decks
+        - Slide Decks
+      summary: List Decks
+      operationId: list_decks_slide_decks_slide_decks__get
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: 'null'
+            title: Status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SlideDeckOut'
+                title: Response List Decks Slide Decks Slide Decks  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /slide-decks/slide-decks/{deck_id}:
+    get:
+      tags:
+        - Slide Decks
+        - Slide Decks
+      summary: Get Deck
+      operationId: get_deck_slide_decks_slide_decks__deck_id__get
+      parameters:
+        - name: deck_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Deck Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlideDeckOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /slide-decks/slide-decks/{deck_id}/slide/{slide_id}:
+    put:
+      tags:
+        - Slide Decks
+        - Slide Decks
+      summary: Update Slide
+      operationId: update_slide_slide_decks_slide_decks__deck_id__slide__slide_id__put
+      parameters:
+        - name: deck_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Deck Id
+        - name: slide_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Slide Id
+        - name: content_md
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Content Md
+        - name: notes_md
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: 'null'
+            title: Notes Md
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlideOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /admin-workflow/workflow-requests/:
+    post:
+      tags:
+        - Admin Workflow
+      summary: Submit Workflow Request
+      operationId: submit_workflow_request_admin_workflow_workflow_requests__post
+      parameters:
+        - name: requester_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            title: Requester Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRequestCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowRequestOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Admin Workflow
+      summary: List Requests
+      operationId: list_requests_admin_workflow_workflow_requests__get
+      parameters:
+        - name: requester_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            title: Requester Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkflowRequestOut'
+                title: Response List Requests Admin Workflow Workflow Requests  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /admin-workflow/workflow-requests/{id}:
+    get:
+      tags:
+        - Admin Workflow
+      summary: Get Request
+      operationId: get_request_admin_workflow_workflow_requests__id__get
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowRequestOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /feedback/:
+    post:
+      tags:
+        - Feedback
+      summary: Submit Feedback
+      operationId: submit_feedback_feedback__post
+      parameters:
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - Feedback
+      summary: Get Feedback
+      operationId: get_feedback_feedback__get
+      parameters:
+        - name: target_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            title: Target Id
+        - name: target_type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/FeedbackTargetType'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeedbackResponse'
+                title: Response Get Feedback Feedback  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register
+      operationId: register_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login
+      operationId: login_auth_login_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_auth_login_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/password-reset-request:
+    post:
+      tags:
+        - Auth
+      summary: Password Reset Request
+      operationId: password_reset_request_auth_password_reset_request_post
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Email
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Password Reset
+      operationId: password_reset_auth_reset_password_post
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Token
+        - name: new_password
+          in: query
+          required: true
+          schema:
+            type: string
+            title: New Password
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /token:
+    post:
+      summary: Login
+      description: Login and get access token
+      operationId: login_token_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_token_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /register:
+    post:
+      summary: Register
+      description: Register a new user
+      operationId: register_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /courses:
+    get:
+      summary: List Courses
+      description: List all courses
+      operationId: list_courses_courses_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CourseResponse'
+                type: array
+                title: Response List Courses Courses Get
+    post:
+      summary: Create Course
+      description: Create a new course
+      operationId: create_course_courses_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Root
+      description: Health check
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Health Check
+      description: Detailed health check
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AnswerSubmission:
+      properties:
+        question_id:
+          type: integer
+          title: Question Id
+        answer:
+          title: Answer
+      type: object
+      required:
+        - question_id
+        - answer
+      title: AnswerSubmission
+      description: Student's answer to a question
+    AssessmentAttemptResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        assessment_id:
+          type: integer
+          title: Assessment Id
+        student_id:
+          type: integer
+          title: Student Id
+        score:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Score
+        max_score:
+          type: integer
+          title: Max Score
+        percentage:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Percentage
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        submitted_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Submitted At
+        time_taken_minutes:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Time Taken Minutes
+      type: object
+      required:
+        - id
+        - assessment_id
+        - student_id
+        - max_score
+        - started_at
+      title: AssessmentAttemptResponse
+      description: Assessment attempt result
+    AssessmentCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Title
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+        course_id:
+          type: integer
+          title: Course Id
+        custom_prompt:
+          type: string
+          minLength: 10
+          title: Custom Prompt
+          description: Instructions for question generation
+        difficulty_level:
+          $ref: '#/components/schemas/DifficultyLevel'
+          default: MEDIUM
+        question_types:
+          items:
+            $ref: '#/components/schemas/QuestionType'
+          type: array
+          minItems: 1
+          title: Question Types
+        total_questions:
+          type: integer
+          maximum: 100
+          minimum: 1
+          title: Total Questions
+        reference_document_ids:
+          items:
+            type: integer
+          type: array
+          title: Reference Document Ids
+          description: Document IDs to use as reference
+        duration_minutes:
+          anyOf:
+            - type: integer
+              maximum: 600
+              minimum: 5
+            - type: 'null'
+          title: Duration Minutes
+      type: object
+      required:
+        - title
+        - course_id
+        - custom_prompt
+        - question_types
+        - total_questions
+      title: AssessmentCreate
+      description: Request to create assessment
+    AssessmentListResponse:
+      properties:
+        assessments:
+          items:
+            $ref: '#/components/schemas/AssessmentResponse'
+          type: array
+          title: Assessments
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+        - assessments
+        - total
+      title: AssessmentListResponse
+      description: List of assessments
+    AssessmentPreview:
+      properties:
+        id:
+          type: integer
+          title: Id
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+        total_questions:
+          type: integer
+          title: Total Questions
+        total_marks:
+          type: integer
+          title: Total Marks
+        duration_minutes:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Duration Minutes
+        questions:
+          items:
+            $ref: '#/components/schemas/QuestionPreview'
+          type: array
+          title: Questions
+          default: []
+      type: object
+      required:
+        - id
+        - title
+        - total_questions
+        - total_marks
+      title: AssessmentPreview
+      description: Assessment for students (no answers)
+    AssessmentResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+        custom_prompt:
+          type: string
+          title: Custom Prompt
+        difficulty_level:
+          $ref: '#/components/schemas/DifficultyLevel'
+        question_types:
+          items:
+            type: string
+          type: array
+          title: Question Types
+        total_questions:
+          type: integer
+          title: Total Questions
+        status:
+          $ref: '#/components/schemas/AssessmentStatus'
+        total_marks:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Total Marks
+        duration_minutes:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Duration Minutes
+        course_id:
+          type: integer
+          title: Course Id
+        created_by:
+          type: integer
+          title: Created By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        questions:
+          items:
+            $ref: '#/components/schemas/QuestionResponse'
+          type: array
+          title: Questions
+          default: []
+      type: object
+      required:
+        - id
+        - title
+        - custom_prompt
+        - difficulty_level
+        - question_types
+        - total_questions
+        - status
+        - course_id
+        - created_by
+        - created_at
+      title: AssessmentResponse
+      description: Assessment response
+    AssessmentStatus:
+      type: string
+      enum:
+        - GENERATING
+        - COMPLETED
+        - FAILED
+      title: AssessmentStatus
+    AssessmentSubmit:
+      properties:
+        answers:
+          items:
+            $ref: '#/components/schemas/AnswerSubmission'
+          type: array
+          title: Answers
+      type: object
+      required:
+        - answers
+      title: AssessmentSubmit
+      description: Submit assessment answers
+    Body_login_auth_login_post:
+      properties:
+        grant_type:
+          anyOf:
+            - type: string
+              pattern: password
+            - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Client Secret
+      type: object
+      required:
+        - username
+        - password
+      title: Body_login_auth_login_post
+    Body_login_token_post:
+      properties:
+        grant_type:
+          anyOf:
+            - type: string
+              pattern: password
+            - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Client Secret
+      type: object
+      required:
+        - username
+        - password
+      title: Body_login_token_post
+    Body_upload_document_knowledge_assistant_knowledge_documents_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+        - file
+      title: Body_upload_document_knowledge_assistant_knowledge_documents_post
+    ChatQueryRequest:
+      properties:
+        query:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Query
+        course_id:
+          type: integer
+          title: Course Id
+        conversation_id:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Conversation Id
+      type: object
+      required:
+        - query
+        - course_id
+      title: ChatQueryRequest
+    ChatQueryResponse:
+      properties:
+        message:
+          $ref: '#/components/schemas/MessageResponse'
+        should_escalate:
+          type: boolean
+          title: Should Escalate
+        confidence_score:
+          type: number
+          title: Confidence Score
+      type: object
+      required:
+        - message
+        - should_escalate
+        - confidence_score
+      title: ChatQueryResponse
+    ConversationCreate:
+      properties:
+        course_id:
+          type: integer
+          title: Course Id
+      type: object
+      required:
+        - course_id
+      title: ConversationCreate
+    ConversationResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        student_id:
+          type: integer
+          title: Student Id
+        course_id:
+          type: integer
+          title: Course Id
+        status:
+          $ref: '#/components/schemas/ConversationStatus'
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        last_message_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Last Message At
+        messages:
+          items:
+            $ref: '#/components/schemas/MessageResponse'
+          type: array
+          title: Messages
+          default: []
+      type: object
+      required:
+        - id
+        - student_id
+        - course_id
+        - status
+        - started_at
+      title: ConversationResponse
+    ConversationStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - RESOLVED
+        - ESCALATED
+      title: ConversationStatus
+    CourseCreate:
+      properties:
+        code:
+          type: string
+          maxLength: 20
+          minLength: 1
+          title: Code
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+      type: object
+      required:
+        - code
+        - name
+      title: CourseCreate
+    CourseResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+        - id
+        - code
+        - name
+        - created_at
+      title: CourseResponse
+    DifficultyLevel:
+      type: string
+      enum:
+        - EASY
+        - MEDIUM
+        - HARD
+      title: DifficultyLevel
+    DocumentResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        title:
+          type: string
+          title: Title
+        file_path:
+          type: string
+          title: File Path
+        file_type:
+          type: string
+          title: File Type
+        file_size:
+          type: integer
+          title: File Size
+        processed:
+          type: boolean
+          title: Processed
+        course_id:
+          type: integer
+          title: Course Id
+        uploaded_by:
+          type: integer
+          title: Uploaded By
+        uploaded_at:
+          type: string
+          format: date-time
+          title: Uploaded At
+      type: object
+      required:
+        - id
+        - title
+        - file_path
+        - file_type
+        - file_size
+        - processed
+        - course_id
+        - uploaded_by
+        - uploaded_at
+      title: DocumentResponse
+    FeedbackCreate:
+      properties:
+        target_id:
+          type: integer
+          title: Target Id
+        target_type:
+          $ref: '#/components/schemas/FeedbackTargetType'
+        rating:
+          type: number
+          maximum: 5
+          minimum: 1
+          title: Rating
+        aspect_ratings:
+          anyOf:
+            - additionalProperties:
+                type: number
+              type: object
+            - type: 'null'
+          title: Aspect Ratings
+        comment:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Comment
+      type: object
+      required:
+        - target_id
+        - target_type
+        - rating
+      title: FeedbackCreate
+    FeedbackResponse:
+      properties:
+        target_id:
+          type: integer
+          title: Target Id
+        target_type:
+          $ref: '#/components/schemas/FeedbackTargetType'
+        rating:
+          type: number
+          maximum: 5
+          minimum: 1
+          title: Rating
+        aspect_ratings:
+          anyOf:
+            - additionalProperties:
+                type: number
+              type: object
+            - type: 'null'
+          title: Aspect Ratings
+        comment:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Comment
+        id:
+          type: integer
+          title: Id
+        user_id:
+          type: integer
+          title: User Id
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+        - target_id
+        - target_type
+        - rating
+        - id
+        - user_id
+        - created_at
+      title: FeedbackResponse
+    FeedbackTargetType:
+      type: string
+      enum:
+        - assessment
+        - study_guide
+        - slide_deck
+      title: FeedbackTargetType
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MessageResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        conversation_id:
+          type: integer
+          title: Conversation Id
+        sender_type:
+          $ref: '#/components/schemas/SenderType'
+        content:
+          type: string
+          title: Content
+        confidence_score:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Confidence Score
+        sources:
+          anyOf:
+            - type: object
+            - type: 'null'
+          title: Sources
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+      type: object
+      required:
+        - id
+        - conversation_id
+        - sender_type
+        - content
+        - timestamp
+      title: MessageResponse
+    Priority:
+      type: string
+      enum:
+        - high
+        - medium
+        - low
+      title: Priority
+    PrioritySegment:
+      properties:
+        start:
+          type: integer
+          minimum: 0
+          title: Start
+          description: Start time in seconds
+        end:
+          type: integer
+          exclusiveMinimum: 0
+          title: End
+          description: End time in seconds
+        priority:
+          $ref: '#/components/schemas/Priority'
+          default: medium
+      type: object
+      required:
+        - start
+        - end
+      title: PrioritySegment
+      description: User-selected important segment
+    QuestionPreview:
+      properties:
+        id:
+          type: integer
+          title: Id
+        question_type:
+          $ref: '#/components/schemas/QuestionType'
+        question_text:
+          type: string
+          title: Question Text
+        options:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Options
+        marks:
+          type: integer
+          title: Marks
+        order:
+          type: integer
+          title: Order
+      type: object
+      required:
+        - id
+        - question_type
+        - question_text
+        - marks
+        - order
+      title: QuestionPreview
+      description: Question without correct answer (for students)
+    QuestionResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        assessment_id:
+          type: integer
+          title: Assessment Id
+        question_type:
+          $ref: '#/components/schemas/QuestionType'
+        question_text:
+          type: string
+          title: Question Text
+        options:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Options
+        correct_answer:
+          title: Correct Answer
+        explanation:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Explanation
+        marks:
+          type: integer
+          title: Marks
+        difficulty:
+          $ref: '#/components/schemas/DifficultyLevel'
+        order:
+          type: integer
+          title: Order
+      type: object
+      required:
+        - id
+        - assessment_id
+        - question_type
+        - question_text
+        - correct_answer
+        - marks
+        - difficulty
+        - order
+      title: QuestionResponse
+      description: Question response
+    QuestionType:
+      type: string
+      enum:
+        - MCQ
+        - MSQ
+        - NAT
+        - SHORT_ANSWER
+        - TRUE_FALSE
+      title: QuestionType
+    SenderType:
+      type: string
+      enum:
+        - STUDENT
+        - AI
+        - TA
+      title: SenderType
+    SlideDeckControls:
+      properties:
+        num_slides:
+          type: integer
+          maximum: 30
+          minimum: 3
+          title: Num Slides
+          default: 10
+        desired_depth:
+          type: string
+          title: Desired Depth
+          description: summary, normal, in-depth
+          default: summary
+      type: object
+      title: SlideDeckControls
+    SlideDeckCreate:
+      properties:
+        title:
+          type: string
+          title: Title
+        controls:
+          $ref: '#/components/schemas/SlideDeckControls'
+        reference_document_ids:
+          anyOf:
+            - items:
+                type: integer
+              type: array
+            - type: 'null'
+          title: Reference Document Ids
+          default: []
+      type: object
+      required:
+        - title
+        - controls
+      title: SlideDeckCreate
+    SlideDeckOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        title:
+          type: string
+          title: Title
+        status:
+          $ref: '#/components/schemas/SlideDeckStatus'
+        controls:
+          $ref: '#/components/schemas/SlideDeckControls'
+        slides:
+          items:
+            $ref: '#/components/schemas/SlideOut'
+          type: array
+          title: Slides
+          default: []
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - controls
+        - created_at
+      title: SlideDeckOut
+    SlideDeckStatus:
+      type: string
+      enum:
+        - PENDING
+        - GENERATING
+        - COMPLETE
+        - FAILED
+      title: SlideDeckStatus
+    SlideOut:
+      properties:
+        title:
+          type: string
+          title: Title
+        content_md:
+          type: string
+          title: Content Md
+        notes_md:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Notes Md
+        image_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Image Url
+        position:
+          type: integer
+          title: Position
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+        - title
+        - content_md
+        - position
+        - id
+      title: SlideOut
+    StudyGuideCreate:
+      properties:
+        youtube_url:
+          type: string
+          minLength: 1
+          title: Youtube Url
+        course_id:
+          type: integer
+          title: Course Id
+        title:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Title
+        priority_segments:
+          items:
+            $ref: '#/components/schemas/PrioritySegment'
+          type: array
+          minItems: 1
+          title: Priority Segments
+      type: object
+      required:
+        - youtube_url
+        - course_id
+        - title
+        - priority_segments
+      title: StudyGuideCreate
+      description: Request to create study guide from YouTube
+    StudyGuideListResponse:
+      properties:
+        guides:
+          items:
+            $ref: '#/components/schemas/StudyGuideResponse'
+          type: array
+          title: Guides
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+        - guides
+        - total
+      title: StudyGuideListResponse
+      description: List of study guides
+    StudyGuideResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        youtube_url:
+          type: string
+          title: Youtube Url
+        video_id:
+          type: string
+          title: Video Id
+        video_title:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Video Title
+        video_duration:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Video Duration
+        title:
+          type: string
+          title: Title
+        content:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Content
+        key_topics:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Key Topics
+        status:
+          $ref: '#/components/schemas/StudyGuideStatus'
+        course_id:
+          type: integer
+          title: Course Id
+        created_by:
+          type: integer
+          title: Created By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        segments:
+          items:
+            $ref: '#/components/schemas/VideoSegmentResponse'
+          type: array
+          title: Segments
+          default: []
+      type: object
+      required:
+        - id
+        - youtube_url
+        - video_id
+        - title
+        - status
+        - course_id
+        - created_by
+        - created_at
+      title: StudyGuideResponse
+      description: Study guide response
+    StudyGuideStatus:
+      type: string
+      enum:
+        - PROCESSING
+        - COMPLETED
+        - FAILED
+      title: StudyGuideStatus
+    Token:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+      type: object
+      required:
+        - access_token
+        - token_type
+      title: Token
+    UserCreate:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        username:
+          type: string
+          title: Username
+        full_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Full Name
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+        - email
+        - username
+        - password
+      title: UserCreate
+    UserResponse:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        username:
+          type: string
+          title: Username
+        full_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Full Name
+        id:
+          type: integer
+          title: Id
+        is_active:
+          type: boolean
+          title: Is Active
+        is_student:
+          type: boolean
+          title: Is Student
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+        - email
+        - username
+        - id
+        - is_active
+        - is_student
+        - created_at
+      title: UserResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+    VideoSegmentResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        start_time:
+          type: integer
+          title: Start Time
+        end_time:
+          type: integer
+          title: End Time
+        transcript:
+          type: string
+          title: Transcript
+        priority:
+          type: string
+          title: Priority
+        summary:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Summary
+        key_points:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Key Points
+      type: object
+      required:
+        - id
+        - start_time
+        - end_time
+        - transcript
+        - priority
+      title: VideoSegmentResponse
+      description: Video segment with transcript
+    WorkflowRequestCreate:
+      properties:
+        title:
+          type: string
+          title: Title
+        description:
+          type: string
+          title: Description
+        request_type:
+          type: string
+          title: Request Type
+      type: object
+      required:
+        - title
+        - description
+        - request_type
+      title: WorkflowRequestCreate
+    WorkflowRequestOut:
+      properties:
+        id:
+          type: integer
+          title: Id
+        title:
+          type: string
+          title: Title
+        description:
+          type: string
+          title: Description
+        request_type:
+          type: string
+          title: Request Type
+        status:
+          $ref: '#/components/schemas/WorkflowStatus'
+        agent_decision:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Agent Decision
+        admin_decision:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Admin Decision
+        agent_reasoning:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Agent Reasoning
+        last_run_report:
+          anyOf:
+            - type: object
+            - type: 'null'
+          title: Last Run Report
+        created_at:
+          type: string
+          title: Created At
+        resolved_at:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Resolved At
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - request_type
+        - status
+        - created_at
+        - resolved_at
+      title: WorkflowRequestOut
+    WorkflowStatus:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - RESOLVED
+        - REJECTED
+        - AUTO_APPROVED
+      title: WorkflowStatus
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: token
